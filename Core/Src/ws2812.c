@@ -1,0 +1,91 @@
+#include "gpio.h"
+#include "ws2812.h"
+#include "main.h"
+
+#define DIN_PORT	GPIOC		//5050RGB WS2812-DIN Port
+#define DIN_PIN		GPIO_PIN_13  //5050RGB WS2812-DIN Pin
+
+#define LEDS_NUM	(9)
+unsigned int rgbflow[][LEDS_NUM]={
+	{COLOR_RED,COLOR_RED,COLOR_RED,COLOR_GREEN,COLOR_GREEN,COLOR_GREEN,COLOR_YELLOW,COLOR_YELLOW,COLOR_YELLOW},
+	{COLOR_RED,COLOR_RED,COLOR_GREEN,COLOR_GREEN,COLOR_GREEN,COLOR_YELLOW,COLOR_YELLOW,COLOR_YELLOW,COLOR_RED},
+	{COLOR_RED,COLOR_GREEN,COLOR_GREEN,COLOR_GREEN,COLOR_YELLOW,COLOR_YELLOW,COLOR_YELLOW,COLOR_RED,COLOR_RED},
+	{COLOR_GREEN,COLOR_GREEN,COLOR_GREEN,COLOR_YELLOW,COLOR_YELLOW,COLOR_YELLOW,COLOR_RED,COLOR_RED,COLOR_RED},
+	{COLOR_GREEN,COLOR_GREEN,COLOR_YELLOW,COLOR_YELLOW,COLOR_YELLOW,COLOR_RED,COLOR_RED,COLOR_RED,COLOR_GREEN},
+	{COLOR_GREEN,COLOR_YELLOW,COLOR_YELLOW,COLOR_YELLOW,COLOR_RED,COLOR_RED,COLOR_RED,COLOR_GREEN,COLOR_GREEN},
+	{COLOR_YELLOW,COLOR_YELLOW,COLOR_YELLOW,COLOR_RED,COLOR_RED,COLOR_RED,COLOR_GREEN,COLOR_GREEN,COLOR_GREEN},
+	{COLOR_YELLOW,COLOR_YELLOW,COLOR_RED,COLOR_RED,COLOR_RED,COLOR_GREEN,COLOR_GREEN,COLOR_GREEN,COLOR_YELLOW},
+	{COLOR_YELLOW,COLOR_RED,COLOR_RED,COLOR_RED,COLOR_GREEN,COLOR_GREEN,COLOR_GREEN,COLOR_YELLOW,COLOR_YELLOW},
+};
+
+//nop延时
+void delay_xnop(int x)
+{
+	while(x--)
+	{
+		__NOP();
+	}
+}
+
+//WS2812 写入一个像素颜色
+//color: 颜色RGB值#RRGGBB, 如0xff0000红色
+void ws2812_onepixel(unsigned int color)
+{
+	// WS2812 颜色数据格式 G7~G0,R7~R0,B7~B0， RGB=>GRB
+	unsigned int tmp = (((color&0x00ff00)<<8)|((color&0xff0000)>>8)|(color&0xff));
+
+	// T0H 0码，高电平时间 	0.35us	±150ns
+	// T0L 0码，低电平时间	0.80us	±150ns
+	// T1H 1码，高电平时间 	0.70us	±150ns
+	// T1L 1码，低电平时间	0.60us	±150ns
+	// RES 帧单位，低电平时间 	50us以上
+
+	// 注意：因使用STM32库函数操作GPIO，满足不了最小电平反转时间，后来改为寄存器操作即可满足！STM32  8MHz晶振，72MHz主频。
+	int i=0;
+	for(i=23; i>=0; i--)
+	{
+		if ((tmp>>i)&0x01) {
+			DIN_PORT->BSRR = DIN_PIN;
+			DIN_PORT->BSRR = DIN_PIN;
+			DIN_PORT->BSRR = DIN_PIN;
+			DIN_PORT->BSRR = DIN_PIN;
+			DIN_PORT->BSRR = DIN_PIN;
+			delay_xnop(5);
+
+			DIN_PORT->BRR = DIN_PIN;
+			delay_xnop(2);
+
+		} else {
+			DIN_PORT->BSRR = DIN_PIN;
+			DIN_PORT->BSRR = DIN_PIN;
+			DIN_PORT->BSRR = DIN_PIN;
+
+			DIN_PORT->BRR = DIN_PIN;
+			DIN_PORT->BRR = DIN_PIN;
+			DIN_PORT->BRR = DIN_PIN;
+		}
+	}
+}
+
+// WS2812 写入一个帧间隔
+// DIN Low  RES:>50us
+void ws2812_oneframe(void)
+{
+	HAL_GPIO_WritePin(DIN_PORT, DIN_PIN, GPIO_PIN_RESET);
+	delay_xnop(300);
+}
+
+void ws2812_waterflow(void)
+{
+	int i=0,j=0;
+	for (i=0; i<(sizeof(rgbflow)/sizeof(rgbflow[0])); i++)
+	{
+		for(j=0; j<LEDS_NUM; j++)
+		{
+			ws2812_onepixel(rgbflow[i][j]);
+		}
+		ws2812_oneframe();
+		HAL_Delay(100);
+	}
+}
+
