@@ -1,5 +1,7 @@
 # STM32F0_with_k210
-stm32f030c8t6 with slave stm32 board, kendryte-K210, LED and a passive speaker
+stm32f030c8t6 with kendryte-K210, LED and a passive speaker.
+
+as a master device and work with [STM32F4_with_MLX90640 project](https://github.com/Gulfy034/STM32F4_with_MLX90640).
 
 > [!TIP]
 > cmake and [STM32CubeCLT](https://www.st.com.cn/en/development-tools/stm32cubeclt.html) (version >= 6.14.1) needed.
