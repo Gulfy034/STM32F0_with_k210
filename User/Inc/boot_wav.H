@@ -1,6 +1,8 @@
-// 标准PCM数据
+#include "main.h"
 
+// 标准PCM数据
 //采样速率为6400
+
 #define SOUND_SamplesPerSec 6400;
 
 //下面函数每156uS(微秒)必需要调用一次，可作为定时中断程序
@@ -17,13 +19,7 @@ void SoundDecode()
 }
 ***********************************************/
 
-#include "main.h"
-
-#define SOUND_LENGTH 10309;
-
-//TODO: 需要修复
-
-const char DATA[SOUND_LENGTH] = {
+const char wav_data[10309] = {
 	0x76, 0x7e, 0x7e, 0x81, 0x7c, 0x87, 0x85, 0x7c,
 	0x7b, 0x7f, 0x81, 0x8e, 0x87, 0x88, 0x70, 0x6a,
 	0x70, 0x7e, 0x7d, 0x8b, 0x91, 0x84, 0x7c, 0x7c,

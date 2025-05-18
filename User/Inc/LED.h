@@ -1,0 +1,27 @@
+#include "main.h"
+#ifndef LED_H
+#define LED_H
+
+void led(LED_mode);
+
+uint8_t LED_mode;
+
+#define LED_R GPIO_PIN_0
+#define LED_G GPIO_PIN_1
+#define LED_B GPIO_PIN_2
+
+#define LED_R_PORT GPIOB
+#define LED_G_PORT GPIOB
+#define LED_B_PORT GPIOB
+
+#define LED_R_ENABLE() HAL_GPIO_WritePin(LED_R_PORT, LED_R, GPIO_PIN_SET);
+#define LED_R_DISABLE() HAL_GPIO_WritePin(LED_R_PORT, LED_R, GPIO_PIN_RESET);
+#define LED_G_ENABLE() HAL_GPIO_WritePin(LED_G_PORT, LED_G, GPIO_PIN_SET);
+#define LED_G_DISABLE() HAL_GPIO_WritePin(LED_G_PORT, LED_G, GPIO_PIN_RESET);
+#define LED_B_ENABLE() HAL_GPIO_WritePin(LED_B_PORT, LED_B, GPIO_PIN_SET);
+#define LED_B_DISABLE() HAL_GPIO_WritePin(LED_B_PORT, LED_B, GPIO_PIN_RESET);
+
+
+#define LED_CLK_ENABLE() __GPIOB_CLK_ENABLE()
+
+#endif

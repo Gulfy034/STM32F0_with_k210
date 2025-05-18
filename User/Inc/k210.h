@@ -1,27 +1,23 @@
-#ifndef __k210_H__
-#define __k210_H__
+#ifndef K210_H
+#define K210_H
 
 #include "main.h"
 
-// 可以调整选的是 USART1 / USART2
-#define USART1
+char buff_com[4]; // buffer可以设置4，视发送字节数为定
+
+uint8_t k210_stat; // 检测到人手为1，没检测到为0
 
 // 定义k210信息结构体
 
-typedef struct k210_msg
+typedef struct k210_buffer // 24 01 01 23 (start符号$: 0x24, end符号#: 0x23, crc: 0x01)
 {
 	uint16_t start;
-	uint16_t alert; // 0x01: 检测到手警报, 0x00: 没检测到不警报
-	uint16_t crc;
+	uint8_t alert; // 0x01: 检测到手警报, 0x00: 没检测到不警报
+	uint8_t crc;   // fakeCRC, just a manual data
 	uint16_t end;
 } k210;
 
-// 备注: start符号$: 0x24, end符号#: 0x23, crc: 0x01
-
 /********k210通信相关************/
-void recv_k210msg(uint8_t recv_msg);
-void deal_recvmsg(void);
-void deal_data(uint8_t egnum);
 extern k210 k210_msg;
 
 // k210信息结构体: k210_msg, 结构体变量名: k210
