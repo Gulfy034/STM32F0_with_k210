@@ -2,7 +2,7 @@
 #include "spi.h"
 #include "send.h"
 
-int send(send_buffer) // 需要在参数里输入1个8位16进制数，例如：00
+int send(send_buffer)
 {
     SystemInit();
     HAL_SPI_Init(SPI1);
